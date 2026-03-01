@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Limites — Citizen Analyzer</title>
+  <meta name="description" content="Limites et précautions d'usage de Citizen Analyzer. Transparence totale sur ce que l'outil peut et ne peut pas faire.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/shared.css">
+</head>
+<body>
+
+<nav id="nav">
+  <a href="/" class="nav-brand">
+    <div class="nav-logo">C</div>
+    <div class="nav-name">Citizen <span>Analyzer</span></div>
+  </a>
+  <div class="nav-links">
+    <a href="/#fonctionnalites">Fonctionnalités</a>
+    <a href="methodologie.html">Méthodologie</a>
+    <a href="a-propos.html">À propos</a>
+    <a href="docs.html">Documentation</a>
+    <a href="/#installer" class="nav-cta">Installer l'extension</a>
+  </div>
+</nav>
+
+<header class="page-header">
+  <div class="page-header-inner">
+    <div class="section-label">Transparence</div>
+    <h1 class="page-title">Limites</h1>
+    <p class="page-sub">Aucun outil n'est parfait. Voici ce que Citizen Analyzer peut et ne peut pas faire, en toute transparence.</p>
+  </div>
+</header>
+
+<main class="page-content">
+
+  <article class="content-block reveal">
+    <div class="content-icon">🤖</div>
+    <h2>Limites du modèle de langage</h2>
+    <p>
+      L'analyse repose sur un modèle de langage (LLM) qui, malgré ses performances, présente des limites structurelles.
+    </p>
+    <ul class="content-list">
+      <li><strong>Hallucinations</strong> — Le modèle peut produire des affirmations plausibles mais fausses. Les passes multiples et la vérification de fiabilité réduisent ce risque sans l'éliminer.</li>
+      <li><strong>Sensibilité culturelle</strong> — Les nuances propres à chaque culture politique nationale peuvent être mal interprétées, surtout pour les pays moins représentés dans les données d'entraînement.</li>
+      <li><strong>Variabilité</strong> — Deux analyses du même texte peuvent produire des résultats légèrement différents. La structure en plusieurs passes stabilise les résultats.</li>
+      <li><strong>Dépendance au modèle</strong> — Les mises à jour du modèle peuvent modifier les résultats. Les versions sont tracées pour assurer la reproductibilité.</li>
+    </ul>
+  </article>
+
+  <article class="content-block reveal">
+    <div class="content-icon">🎭</div>
+    <h2>Limites de la détection rhétorique</h2>
+    <ul class="content-list">
+      <li><strong>Ironie et second degré</strong> — L'IA peine à distinguer un usage sincère d'un usage ironique d'une technique rhétorique.</li>
+      <li><strong>Contexte non-verbal</strong> — Le ton, les gestes, les silences et les regards ne sont pas accessibles dans un texte écrit.</li>
+      <li><strong>Références implicites</strong> — Les allusions culturelles, historiques ou médiatiques locales peuvent passer inaperçues.</li>
+      <li><strong>Faux positifs</strong> — Un argument légitime peut être identifié comme technique rhétorique si sa formulation ressemble à un mécanisme connu.</li>
+      <li><strong>Faux négatifs</strong> — Une technique subtile ou inédite peut ne pas être détectée par les grilles existantes.</li>
+    </ul>
+  </article>
+
+  <article class="content-block reveal">
+    <div class="content-icon">📊</div>
+    <h2>Limites du scoring</h2>
+    <ul class="content-list">
+      <li><strong>Un score n'est pas un verdict</strong> — C'est un indicateur de lecture, pas un jugement moral ou politique.</li>
+      <li><strong>Les seuils sont conventionnels</strong> — La frontière entre un score "modéré" et "élevé" est définie par convention, pas par une vérité absolue.</li>
+      <li><strong>Comparabilité limitée</strong> — Comparer le score d'un discours de campagne avec celui d'un texte de loi a peu de sens. Le contexte compte.</li>
+      <li><strong>Pas de pondération qualitative</strong> — Tous les indicateurs ont le même poids, alors que certains sont plus graves que d'autres dans la réalité.</li>
+    </ul>
+  </article>
+
+  <article class="content-block reveal">
+    <div class="content-icon">🔬</div>
+    <h2>Limites de l'analyse distributionnelle</h2>
+    <ul class="content-list">
+      <li><strong>Analyse qualitative</strong> — Sans données chiffrées, l'impact est estimé, pas mesuré. Les directions et intensités sont des approximations.</li>
+      <li><strong>Groupes non mentionnés</strong> — Si un texte ne mentionne pas un groupe, l'outil ne peut pas deviner l'impact sur ce groupe.</li>
+      <li><strong>Effets indirects</strong> — Les effets de second ordre (réactions de marché, comportements adaptatifs) sont rarement capturés.</li>
+    </ul>
+  </article>
+
+  <article class="content-block reveal">
+    <div class="content-icon">⚠️</div>
+    <h2>Ce que l'outil n'est pas</h2>
+    <div class="content-grid-4">
+      <div class="mini-card">
+        <strong>Pas un juge politique</strong>
+        <span>L'outil analyse, il ne juge pas. L'interprétation reste celle du citoyen.</span>
+      </div>
+      <div class="mini-card">
+        <strong>Pas un substitut</strong>
+        <span>Il complète votre esprit critique, il ne le remplace pas.</span>
+      </div>
+      <div class="mini-card">
+        <strong>Pas une source primaire</strong>
+        <span>C'est un outil d'analyse de second niveau, pas une source d'information.</span>
+      </div>
+      <div class="mini-card">
+        <strong>Pas infaillible</strong>
+        <span>Chaque résultat doit être lu avec recul et esprit critique.</span>
+      </div>
+    </div>
+  </article>
+
+</main>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="/" class="nav-brand"><div class="nav-logo">C</div><div class="nav-name">Citizen <span>Analyzer</span></div></a>
+      <p>Outil citoyen d'analyse du discours politique. Open source, non-partisan, gratuit.</p>
+    </div>
+    <div class="footer-col"><h4>Outil</h4><a href="/#fonctionnalites">Fonctionnalités</a><a href="docs.html">Documentation</a></div>
+    <div class="footer-col"><h4>Projet</h4><a href="methodologie.html">Méthodologie</a><a href="limites.html">Limites</a><a href="a-propos.html">À propos</a><a href="mailto:contact@citizen-analyzer.org">Contact</a></div>
+    <div class="footer-col"><h4>Communauté</h4><a href="https://github.com/citizenanalyzera-lgtm" target="_blank">GitHub</a></div>
+  </div>
+  <div class="footer-bottom"><span>© 2026 Citizen Analyzer — Projet associatif</span><span>Code source sous <a href="#">licence ouverte</a></span></div>
+</footer>
+
+<script>
+  window.addEventListener('scroll', function() { document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 40); });
+  var reveals = document.querySelectorAll('.reveal');
+  var observer = new IntersectionObserver(function(entries) { entries.forEach(function(entry) { if (entry.isIntersecting) entry.target.classList.add('visible'); }); }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+  reveals.forEach(function(el) { observer.observe(el); });
+</script>
+</body>
+</html>

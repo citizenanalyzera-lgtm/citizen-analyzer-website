@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>À propos — Citizen Analyzer</title>
+  <meta name="description" content="La mission, le positionnement et l'équipe derrière Citizen Analyzer.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/shared.css">
+</head>
+<body>
+
+<nav id="nav">
+  <a href="/" class="nav-brand"><div class="nav-logo">C</div><div class="nav-name">Citizen <span>Analyzer</span></div></a>
+  <div class="nav-links">
+    <a href="/#fonctionnalites">Fonctionnalités</a>
+    <a href="methodologie.html">Méthodologie</a>
+    <a href="a-propos.html" class="active">À propos</a>
+    <a href="docs.html">Documentation</a>
+    <a href="/#installer" class="nav-cta">Installer l'extension</a>
+  </div>
+</nav>
+
+<header class="page-header">
+  <div class="page-header-inner">
+    <div class="section-label">Le projet</div>
+    <h1 class="page-title">À propos</h1>
+    <p class="page-sub">Un outil citoyen, indépendant et transparent pour décrypter le discours politique.</p>
+  </div>
+</header>
+
+<main class="page-content">
+
+  <article class="content-block reveal">
+    <div class="content-icon">🎯</div>
+    <h2>La mission</h2>
+    <p>
+      Le discours politique façonne les décisions collectives. Pourtant, les outils pour l'analyser
+      sont réservés aux chercheurs, aux journalistes et aux experts. Le citoyen ordinaire doit se fier
+      à son intuition — ou aux commentaires des autres.
+    </p>
+    <p>
+      Citizen Analyzer existe pour changer ça. L'objectif : donner à chaque citoyen les mêmes outils
+      d'analyse que ceux dont disposent les professionnels, dans une interface accessible et compréhensible.
+    </p>
+    <p>
+      Ce n'est pas un outil qui dit "pour qui voter". C'est un outil qui dit "voici ce que contient
+      réellement ce discours, voici les techniques utilisées, voici qui est affecté et comment".
+      L'interprétation et le jugement restent toujours ceux du citoyen.
+    </p>
+  </article>
+
+  <article class="content-block reveal">
+    <div class="content-icon">⚖️</div>
+    <h2>Positionnement</h2>
+    <div class="content-grid-4">
+      <div class="mini-card">
+        <strong>Non-partisan</strong>
+        <span>Les mêmes grilles d'analyse sont appliquées à tous les bords politiques. Aucune pondération idéologique, aucun traitement de faveur.</span>
+      </div>
+      <div class="mini-card">
+        <strong>Indépendant</strong>
+        <span>Aucun financement politique, aucun sponsor partisan. Le projet est autofinancé et communautaire.</span>
+      </div>
+      <div class="mini-card">
+        <strong>Transparent</strong>
+        <span>Code source ouvert, méthodologie documentée, limites assumées. Tout est vérifiable et critiquable.</span>
+      </div>
+      <div class="mini-card">
+        <strong>Respectueux</strong>
+        <span>Aucune donnée personnelle collectée. Pas de publicité, pas de tracking, pas de revente de données.</span>
+      </div>
+    </div>
+  </article>
+
+  <article class="content-block reveal">
+    <div class="content-icon">🔧</div>
+    <h2>Le modèle</h2>
+    <p>
+      Citizen Analyzer est un projet associatif open source. L'outil est gratuit et le restera.
+      Le code source est public sur GitHub. Les contributions de la communauté sont bienvenues,
+      que ce soit sous forme de code, de traduction, de contenu éducatif ou d'analyses partagées.
+    </p>
+    <p>
+      Le projet n'affiche aucune publicité et ne revend aucune donnée. Les coûts d'infrastructure
+      (serveurs, API) sont couverts par les contributions volontaires et l'autofinancement.
+    </p>
+  </article>
+
+  <article class="content-block reveal">
+    <div class="content-icon">📬</div>
+    <h2>Contact</h2>
+    <div class="contact-card">
+      <h3>Nous écrire</h3>
+      <a href="mailto:contact@citizen-analyzer.org">contact@citizen-analyzer.org</a>
+      <a href="https://github.com/citizenanalyzera-lgtm" target="_blank">GitHub → citizenanalyzera-lgtm</a>
+    </div>
+    <p>
+      Pour toute question, suggestion, signalement de bug ou demande de partenariat,
+      n'hésitez pas à nous contacter. Nous répondons à tous les messages.
+    </p>
+  </article>
+
+</main>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand"><a href="/" class="nav-brand"><div class="nav-logo">C</div><div class="nav-name">Citizen <span>Analyzer</span></div></a><p>Outil citoyen d'analyse du discours politique. Open source, non-partisan, gratuit.</p></div>
+    <div class="footer-col"><h4>Outil</h4><a href="/#fonctionnalites">Fonctionnalités</a><a href="docs.html">Documentation</a></div>
+    <div class="footer-col"><h4>Projet</h4><a href="methodologie.html">Méthodologie</a><a href="limites.html">Limites</a><a href="a-propos.html">À propos</a><a href="mailto:contact@citizen-analyzer.org">Contact</a></div>
+    <div class="footer-col"><h4>Communauté</h4><a href="https://github.com/citizenanalyzera-lgtm" target="_blank">GitHub</a></div>
+  </div>
+  <div class="footer-bottom"><span>© 2026 Citizen Analyzer — Projet associatif</span><span>Code source sous <a href="#">licence ouverte</a></span></div>
+</footer>
+
+<script>
+  window.addEventListener('scroll', function() { document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 40); });
+  var reveals = document.querySelectorAll('.reveal');
+  var observer = new IntersectionObserver(function(entries) { entries.forEach(function(entry) { if (entry.isIntersecting) entry.target.classList.add('visible'); }); }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+  reveals.forEach(function(el) { observer.observe(el); });
+</script>
+</body>
+</html>

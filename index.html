@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Citizen Analyzer — Plateforme citoyenne d'analyse politique</title>
+  <meta name="description" content="Plateforme collaborative d'analyse du discours politique. Open source et non-partisan.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%236366f1'/><text x='50%25' y='55%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='20' font-weight='900'>C</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #080d19; overflow-x: hidden; }
+    #root { min-height: 100vh; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0a0f1a; }
+    ::-webkit-scrollbar-thumb { background: #1e2d3d; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #2d3f52; }
+    @media (max-width: 768px) {
+      .hide-mobile { display: none !important; }
+    }
+  </style>
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+const { useState } = React;
+
+const PAGES = {
+  HOME: "home",
+  EXPLORER: "explorer",
+  ANALYSIS: "analysis",
+  LEARN: "learn",
+  MODULE: "module",
+  QUIZ: "quiz",
+  QUIZ_PLAY: "quiz_play",
+  TRENDS: "trends",
+  METHODOLOGY: "methodology",
+  LIMITS: "limits",
+  ABOUT: "about",
+};
+
+// Mock data
+const mockAnalyses = [
+  {
+    id: 1,
+    country: "FR",
+    type: "Programme",
+    group: "Renew",
+    party: "Renaissance",
+    person: null,
+    name: "Programme Présidentielle 2027",
+    contributions: 12,
+    version: 3,
+    status: "published",
+    date: "Mars 2026",
+    rhetoric: [
+      { name: "Appel à la peur", severity: "high", count: 7, extract: "Si nous ne réformons pas maintenant, c'est l'effondrement économique qui nous attend." },
+      { name: "Faux dilemme", severity: "medium", count: 4, extract: "C'est soit notre réforme, soit le déclin." },
+      { name: "Cherry-picking", severity: "medium", count: 5, extract: "La France est le pays qui a le mieux résisté à la crise en Europe." },
+      { name: "Novlangue", severity: "low", count: 3, extract: "Nous proposons une flexisécurité renforcée pour tous." },
+    ],
+    regimeScore: { total: 62, democratic: 71, authoritarian: 53, populist: 48 },
+    impact: {
+      low_income: { score: -2, label: "Négatif" },
+      middle_income: { score: 1, label: "Légèrement positif" },
+      high_income: { score: 3, label: "Positif" },
+      youth: { score: 0, label: "Neutre" },
+      seniors: { score: -1, label: "Légèrement négatif" },
+      rural: { score: -2, label: "Négatif" },
+      urban: { score: 2, label: "Positif" },
+    },
+    clarification: [
+      { claim: "Le chômage a baissé de 30% en 5 ans", verdict: "Partiellement vrai", detail: "Baisse de 18% selon l'INSEE, 30% uniquement en catégorie A." },
+      { claim: "Notre dette est la plus basse de la zone euro", verdict: "Faux", detail: "La France est 4e en ratio dette/PIB dans la zone euro." },
+      { claim: "1 million d'emplois créés", verdict: "Trompeur", detail: "Chiffre brut, ne compte pas les emplois détruits sur la même période." },
+    ],
+  },
+  {
+    id: 2, country: "FR", type: "Discours", group: "GUE/NGL", party: "LFI",
+    person: "Mélenchon", name: "Discours Fête de l'Humanité 2026", contributions: 8,
+    version: 2, status: "published", date: "Sept 2026",
+  },
+  {
+    id: 3, country: "FR", type: "Programme", group: "ID", party: "RN",
+    person: null, name: "Programme Présidentielle 2027", contributions: 15,
+    version: 4, status: "published", date: "Fév 2026",
+  },
+  {
+    id: 4, country: "DE", type: "Programme", group: "S&D", party: "SPD",
+    person: null, name: "Bundestagswahl 2025", contributions: 6,
+    version: 2, status: "published", date: "Jan 2026",
+  },
+];
+
+const modules = [
+  { id: 1, cat: "rhetorique", icon: "🎭", title: "L'homme de paille", subtitle: "Dire ce que l'autre n'a pas dit", difficulty: "Débutant" },
+  { id: 2, cat: "rhetorique", icon: "🎭", title: "Le faux dilemme", subtitle: "\"C'est ça ou le chaos\"", difficulty: "Débutant" },
+  { id: 3, cat: "rhetorique", icon: "🎭", title: "L'appel à la peur", subtitle: "Gouverner par l'émotion", difficulty: "Intermédiaire" },
+  { id: 4, cat: "institutions", icon: "📚", title: "Comment une loi est fabriquée", subtitle: "La vraie version", difficulty: "Débutant" },
+  { id: 5, cat: "institutions", icon: "📚", title: "Le Parlement européen", subtitle: "Qui fait vraiment quoi", difficulty: "Intermédiaire" },
+  { id: 6, cat: "programmes", icon: "🗳️", title: "Lire un programme politique", subtitle: "Avec un œil critique", difficulty: "Débutant" },
+  { id: 7, cat: "decisions", icon: "⚙️", title: "Le 49.3", subtitle: "Mécanisme et conséquences", difficulty: "Intermédiaire" },
+  { id: 8, cat: "rhetorique", icon: "🎭", title: "La fenêtre d'Overton", subtitle: "Déplacer les limites du débat", difficulty: "Avancé" },
+];
+
+const quizzes = [
+  { id: 1, cat: "rhetorique", title: "Identifiez la technique rhétorique", questions: 10, difficulty: "Débutant", icon: "🧠" },
+  { id: 2, cat: "factuel", title: "Vrai, faux ou trompeur ?", questions: 8, difficulty: "Intermédiaire", icon: "📊" },
+  { id: 3, cat: "institutions", title: "Connaissez-vous vos institutions ?", questions: 12, difficulty: "Débutant", icon: "🏛️" },
+  { id: 4, cat: "programme", title: "Quel parti propose quoi ?", questions: 10, difficulty: "Avancé", icon: "🎯" },
+];
+
+const quizQuestions = [
+  {
+    q: "\"Si nous n'agissons pas maintenant, ce sera la catastrophe.\" Quelle technique est utilisée ?",
+    options: ["Homme de paille", "Appel à la peur", "Cherry-picking", "Whataboutism"],
+    correct: 1,
+    explanation: "L'appel à la peur utilise une menace (souvent exagérée) pour court-circuiter la réflexion et pousser à l'action immédiate sans débat."
+  },
+  {
+    q: "\"Vous parlez de chômage, mais regardez ce que fait l'opposition dans leurs régions !\" Quelle technique ?",
+    options: ["Faux dilemme", "Novlangue", "Whataboutism", "Fenêtre d'Overton"],
+    correct: 2,
+    explanation: "Le whataboutism détourne l'attention du sujet en pointant les actions de l'adversaire, évitant ainsi de répondre à la question posée."
+  },
+  {
+    q: "\"C'est soit notre réforme, soit le chaos social.\" Quelle technique ?",
+    options: ["Appel à la peur", "Faux dilemme", "Homme de paille", "Cherry-picking"],
+    correct: 1,
+    explanation: "Le faux dilemme présente seulement deux options (souvent extrêmes) alors que de nombreuses alternatives existent, forçant un choix binaire artificiel."
+  },
+];
+
+// Color utils
+const severityColor = (s) => s === "high" ? "#ef4444" : s === "medium" ? "#f59e0b" : "#22c55e";
+const impactColor = (s) => s > 1 ? "#22c55e" : s < -1 ? "#ef4444" : s === 0 ? "#94a3b8" : s > 0 ? "#86efac" : "#fca5a5";
+const verdictColor = (v) => v === "Faux" ? "#ef4444" : v === "Trompeur" ? "#f59e0b" : v.includes("Partiel") ? "#3b82f6" : "#22c55e";
+
+function ScoreBar({ value, max = 100, color = "#6366f1", label }) {
+  return (
+    <div style={{ marginBottom: 8 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 3, color: "#c4c9d4" }}>
+        <span>{label}</span><span style={{ color }}>{value}/{max}</span>
+      </div>
+      <div style={{ height: 6, background: "#1e2a3a", borderRadius: 3 }}>
+        <div style={{ height: "100%", width: `${(value / max) * 100}%`, background: color, borderRadius: 3, transition: "width 0.6s ease" }} />
+      </div>
+    </div>
+  );
+}
+
+function Nav({ page, setPage }) {
+  const items = [
+    { key: PAGES.HOME, label: "Accueil" },
+    { key: PAGES.EXPLORER, label: "Explorer" },
+    { key: PAGES.LEARN, label: "Apprendre" },
+    { key: PAGES.QUIZ, label: "Quiz" },
+    { key: PAGES.TRENDS, label: "Tendances" },
+  ];
+  return (
+    <nav style={{
+      background: "linear-gradient(135deg, #0a0f1a 0%, #111827 100%)",
+      borderBottom: "1px solid #1e2d3d",
+      padding: "0 24px",
+      position: "sticky", top: 0, zIndex: 100,
+      display: "flex", alignItems: "center", justifyContent: "space-between",
+    }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
+        <div onClick={() => setPage(PAGES.HOME)} style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 10, padding: "16px 0" }}>
+          <div style={{
+            width: 32, height: 32, borderRadius: 8,
+            background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 16, fontWeight: 800, color: "#fff",
+          }}>C</div>
+          <span style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 16, color: "#f1f5f9", letterSpacing: "-0.02em" }}>
+            Citizen Analyzer
+          </span>
+        </div>
+        <div style={{ display: "flex", gap: 4 }}>
+          {items.map(i => (
+            <button key={i.key} onClick={() => setPage(i.key)} style={{
+              padding: "8px 14px", borderRadius: 6, border: "none", cursor: "pointer",
+              fontSize: 13, fontWeight: 500, fontFamily: "'DM Sans', sans-serif",
+              background: page === i.key ? "rgba(99,102,241,0.15)" : "transparent",
+              color: page === i.key ? "#818cf8" : "#94a3b8",
+              transition: "all 0.2s",
+            }}>{i.label}</button>
+          ))}
+        </div>
+      </div>
+      <div style={{ display: "flex", gap: 8 }}>
+        {[
+          { label: "Méthodologie", p: PAGES.METHODOLOGY },
+          { label: "Limites", p: PAGES.LIMITS },
+          { label: "À propos", p: PAGES.ABOUT },
+        ].map(i => (
+          <button key={i.p} onClick={() => setPage(i.p)} style={{
+            padding: "6px 10px", border: "none", cursor: "pointer", borderRadius: 4,
+            fontSize: 11, color: "#64748b", background: "transparent", fontFamily: "'DM Sans', sans-serif",
+          }}>{i.label}</button>
+        ))}
+        <button style={{
+          padding: "7px 16px", borderRadius: 6, border: "1px solid #6366f1",
+          background: "transparent", color: "#818cf8", fontSize: 12, fontWeight: 600,
+          cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
+        }}>Connexion</button>
+      </div>
+    </nav>
+  );
+}
+
+function HomePage({ setPage, setSelectedAnalysis }) {
+  return (
+    <div>
+      {/* Hero — Discours citoyen */}
+      <div style={{
+        padding: "70px 24px 60px",
+        background: "radial-gradient(ellipse at 50% 0%, rgba(99,102,241,0.10) 0%, transparent 70%)",
+      }}>
+        <div style={{ maxWidth: 720, margin: "0 auto" }}>
+          <div style={{
+            background: "#0f1a2e", border: "1px solid #1e2d3d", borderRadius: 16,
+            padding: "40px 36px", position: "relative", overflow: "hidden",
+          }}>
+            {/* Guillemet décoratif */}
+            <div style={{
+              position: "absolute", top: 16, left: 24, fontSize: 72, color: "#1e2d3d",
+              fontFamily: "Georgia, serif", lineHeight: 1, userSelect: "none",
+            }}>"</div>
+            
+            <div style={{
+              fontFamily: "'DM Sans', sans-serif", fontSize: 17, color: "#c4c9d4",
+              lineHeight: 1.8, position: "relative", zIndex: 1,
+            }}>
+              <p style={{ margin: "0 0 16px", textIndent: 32 }}>
+                Chaque année c'est la même chose. On va me demander de déposer un papier dans une urne, 
+                et ce papier sera déterminant pour la majorité de la population. Peut-être moi y compris.
+              </p>
+              <p style={{ margin: "0 0 16px" }}>
+                Pour faire ce choix, j'ai écouté des discours, lu des programmes, entendu des promesses. 
+                Mais <span style={{ color: "#e2e8f0", fontWeight: 600 }}>je n'ai pas le temps de tout vérifier</span>. 
+                Je n'ai pas les outils pour savoir si ce qu'on me dit est vrai, 
+                si les chiffres qu'on me donne sont honnêtes, 
+                si les mots qu'on utilise ne cachent pas autre chose.
+              </p>
+              <p style={{ margin: "0 0 16px" }}>
+                Et je ne suis pas le seul. <span style={{ color: "#e2e8f0", fontWeight: 600 }}>Nous sommes des millions</span> à voter 
+                avec ce que nous avons compris, ce que nous avons ressenti, 
+                ce que nous avons eu le temps d'entendre entre deux journées de travail.
+              </p>
+              <p style={{ margin: "0 0 16px" }}>
+                Citizen Analyzer est né d'un constat simple : 
+                <span style={{ color: "#818cf8", fontWeight: 600 }}> la démocratie ne peut pas fonctionner si les citoyens 
+                n'ont pas les moyens de comprendre ce qu'on leur propose</span>.
+              </p>
+              <p style={{ margin: "0 0 0" }}>
+                Cet outil ne vous dit pas pour qui voter. Il ne prend pas parti. 
+                Il vous aide à <span style={{ color: "#e2e8f0", fontWeight: 600 }}>voir ce que vous n'avez pas le temps de chercher</span> : 
+                les chiffres trompeurs, les promesses floues, et surtout 
+                <span style={{ color: "#818cf8", fontWeight: 600 }}> comprendre quel sera l'impact réel sur ma vie et celles des autres</span>. 
+                Et parce qu'un citoyen seul ne peut pas tout analyser, 
+                <span style={{ color: "#818cf8", fontWeight: 600 }}> on le fait ensemble</span>.
+              </p>
+            </div>
+
+            <div style={{
+              position: "absolute", bottom: 16, right: 24, fontSize: 72, color: "#1e2d3d",
+              fontFamily: "Georgia, serif", lineHeight: 1, userSelect: "none", transform: "rotate(180deg)",
+            }}>"</div>
+          </div>
+
+          {/* CTA sous le discours */}
+          <div style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 28 }}>
+            <button onClick={() => setPage(PAGES.EXPLORER)} style={{
+              padding: "13px 28px", borderRadius: 8, border: "none", cursor: "pointer",
+              background: "linear-gradient(135deg, #6366f1, #8b5cf6)", color: "#fff",
+              fontSize: 15, fontWeight: 600, fontFamily: "'DM Sans', sans-serif",
+            }}>Voir les analyses citoyennes</button>
+            <button onClick={() => setPage(PAGES.LEARN)} style={{
+              padding: "13px 28px", borderRadius: 8, border: "1px solid #2d3748",
+              background: "rgba(255,255,255,0.03)", color: "#c4c9d4",
+              fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
+            }}>Apprendre à décoder</button>
+          </div>
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div style={{
+        display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 1,
+        maxWidth: 800, margin: "0 auto 60px", background: "#1e2d3d", borderRadius: 12, overflow: "hidden",
+      }}>
+        {[
+          { n: "47", l: "Analyses publiées" },
+          { n: "12", l: "Super JSON" },
+          { n: "183", l: "Contributeurs" },
+          { n: "4", l: "Pays couverts" },
+        ].map((s, i) => (
+          <div key={i} style={{ background: "#0f1a2e", padding: "24px 16px", textAlign: "center" }}>
+            <div style={{ fontSize: 28, fontWeight: 800, color: "#818cf8", fontFamily: "'DM Sans', sans-serif" }}>{s.n}</div>
+            <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>{s.l}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Dernières analyses */}
+      <div style={{ maxWidth: 900, margin: "0 auto 60px", padding: "0 24px" }}>
+        <h2 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 22, fontWeight: 700, color: "#f1f5f9", marginBottom: 20 }}>
+          Dernières analyses publiées
+        </h2>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12 }}>
+          {mockAnalyses.map(a => (
+            <div key={a.id} onClick={() => { setSelectedAnalysis(a); setPage(PAGES.ANALYSIS); }}
+              style={{
+                background: "#0f1a2e", border: "1px solid #1e2d3d", borderRadius: 10, padding: 20,
+                cursor: "pointer", transition: "all 0.2s",
+              }}
+              onMouseEnter={e => e.currentTarget.style.borderColor = "#6366f1"}
+              onMouseLeave={e => e.currentTarget.style.borderColor = "#1e2d3d"}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                <div>
+                  <span style={{
+                    display: "inline-block", padding: "2px 8px", borderRadius: 4, fontSize: 10,
+                    fontWeight: 600, background: "rgba(99,102,241,0.15)", color: "#818cf8", marginBottom: 8,
+                  }}>{a.country} · {a.type}</span>
+                  <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, color: "#e2e8f0", margin: "0 0 4px" }}>{a.name}</h3>
+                  <div style={{ fontSize: 12, color: "#64748b" }}>{a.party}{a.person ? ` — ${a.person}` : ""}</div>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <div style={{ fontSize: 11, color: "#818cf8", fontWeight: 600 }}>v{a.version}</div>
+                  <div style={{ fontSize: 10, color: "#475569" }}>{a.contributions} contributions</div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 3 pilliers */}
+      <div style={{ maxWidth: 900, margin: "0 auto 80px", padding: "0 24px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
+          {[
+            { icon: "📤", title: "Contribuez", desc: "Partagez vos analyses depuis l'extension. Chaque contribution enrichit la base commune.", cta: "Installer l'extension", page: null },
+            { icon: "📚", title: "Apprenez", desc: "Modules éducatifs et quiz pour comprendre la rhétorique et les institutions.", cta: "Commencer", page: PAGES.LEARN },
+            { icon: "📊", title: "Observez", desc: "Tendances rhétoriques, scores de régime : l'état du discours politique en temps réel.", cta: "Voir les tendances", page: PAGES.TRENDS },
+          ].map((p, i) => (
+            <div key={i} style={{
+              background: "#0f1a2e", border: "1px solid #1e2d3d", borderRadius: 12, padding: 28, textAlign: "center",
+            }}>
+              <div style={{ fontSize: 32, marginBottom: 12 }}>{p.icon}</div>
+              <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, fontWeight: 700, color: "#e2e8f0", margin: "0 0 8px" }}>{p.title}</h3>
+              <p style={{ fontSize: 13, color: "#94a3b8", lineHeight: 1.5, margin: "0 0 16px" }}>{p.desc}</p>
+              <button onClick={() => p.page && setPage(p.page)} style={{
+                padding: "8px 18px", borderRadius: 6, border: "1px solid #2d3748",
+                background: "transparent", color: "#818cf8", fontSize: 12, fontWeight: 600, cursor: "pointer",
+              }}>{p.cta}</button>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ExplorerPage({ setPage, setSelectedAnalysis }) {
+  const [country, setCountry] = useState("all");
+  const [type, setType] = useState("all");
+  const filtered = mockAnalyses.filter(a =>
+    (country === "all" || a.country === country) &&
+    (type === "all" || a.type === type)
+  );
+  const Select = ({ value, onChange, options }) => (
+    <select value={value} onChange={e => onChange(e.target.value)} style={{
+      padding: "8px 12px", borderRadius: 6, border: "1px solid #1e2d3d", background: "#0f1a2e",
+      color: "#c4c9d4", fontSize: 13, fontFamily: "'DM Sans', sans-serif", cursor: "pointer",
+    }}>
+      {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+    </select>
+  );
+  return (
+    <div style={{ maxWidth: 900, margin: "0 auto", padding: "40px 24px" }}>
+      <h1 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 28, fontWeight: 800, color: "#f1f5f9", marginBottom: 8 }}>Explorer les analyses</h1>
+      <p style={{ color: "#94a3b8", fontSize: 14, marginBottom: 24 }}>Naviguez dans les analyses publiées par la communauté</p>
+      <div style={{ display: "flex", gap: 12, marginBottom: 32 }}>
+        <Select value={country} onChange={setCountry} options={[
+          { value: "all", label: "🌍 Tous les pays" },
+          { value: "FR", label: "🇫🇷 France" },
+          { value: "DE", label: "🇩🇪 Allemagne" },
+        ]} />
+        <Select value={type} onChange={setType} options={[
+          { value: "all", label: "📋 Tous les types" },
+          { value: "Programme", label: "📄 Programme" },
+          { value: "Discours", label: "🎤 Discours" },
+        ]} />
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {filtered.map(a => (
+          <div key={a.id} onClick={() => { setSelectedAnalysis(a); setPage(PAGES.ANALYSIS); }} style={{
+            background: "#0f1a2e", border: "1px solid #1e2d3d", borderRadius: 10, padding: 20,
+            cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", transition: "all 0.2s",
+          }}
+            onMouseEnter={e => e.currentTarget.style.borderColor = "#6366f1"}
+            onMouseLeave={e => e.currentTarget.style.borderColor = "#1e2d3d"}
+          >
+            <div>
+              <div style={{ display: "flex", gap: 6, marginBottom: 6 }}>
+                <span style={{ padding: "2px 8px", borderRadius: 4, fontSize: 10, fontWeight: 600, background: "rgba(99,102,241,0.15)", color: "#818cf8" }}>{a.country}</span>
+                <span style={{ padding: "2px 8px", borderRadius: 4, fontSize: 10, fontWeight: 600, background: "rgba(34,197,94,0.1)", color: "#4ade80" }}>{a.type}</span>
+                <span style={{ padding: "2px 8px", borderRadius: 4, fontSize: 10, fontWeight: 600, background: "rgba(245,158,11,0.1)", color: "#fbbf24" }}>Super JSON v{a.version}</span>
+              </div>
+              <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, fontWeight: 600, color: "#e2e8f0", margin: "0 0 4px" }}>{a.name}</h3>
+              <div style={{ fontSize: 12, color: "#64748b" }}>{a.group} → {a.party}{a.person ? ` → ${a.person}` : ""} · {a.date}</div>
+            </div>
+            <div style={{ textAlign: "right" }}>
+              <div style={{ fontSize: 13, color: "#818cf8", fontWeight: 700 }}>{a.contributions}</div>
+              <div style={{ fontSize: 10, color: "#475569" }}>contributions</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function AnalysisPage({ analysis, setPage }) {
+  const a = analysis || mockAnalyses[0];
+  if (!a.rhetoric) {
+    return (
+      <div style={{ maxWidth: 900, margin: "0 auto", padding: "40px 24px", textAlign: "center" }}>
+        <p style={{ color: "#94a3b8", fontSize: 16 }}>Données détaillées non disponibles pour cette preview.</p>
+        <button onClick={() => setPage(PAGES.EXPLORER)} style={{ marginTop: 16, padding: "8px 20px", borderRadius: 6, border: "1px solid #6366f1", background: "transparent", color: "#818cf8", cursor: "pointer" }}>← Retour</button>
+      </div>
+    );
+  }
+  return (
+    <div style={{ maxWidth: 960, margin: "0 auto", padding: "32px 24px" }}>
+      {/* Header */}
+      <button onClick={() => setPage(PAGES.EXPLORER)} style={{ background: "none", border: "none", color: "#818cf8", cursor: "pointer", fontSize: 13, marginBottom: 16, padding: 0 }}>← Retour aux analyses</button>
+      <div style={{ background: "#0f1a2e", border: "1px solid #1e2d3d", borderRadius: 12, padding: 24, marginBottom: 16 }}>
+        <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
+          <span style={{ padding: "3px 10px", borderRadius: 4, fontSize: 10, fontWeight: 600, background: "rgba(99,102,241,0.15)", color: "#818cf8" }}>{a.country}</span>
+          <span style={{ padding: "3px 10px", borderRadius: 4, fontSize: 10, fontWeight: 600, background: "rgba(34,197,94,0.1)", color: "#4ade80" }}>{a.type}</span>
+          <span style={{ padding: "3px 10px", borderRadius: 4, fontSize: 10, fontWeight: 600, background: "rgba(245,158,11,0.1)", color: "#fbbf24" }}>Super JSON v{a.version} — {a.contributions} contributions</span>
+        </div>
+        <h1 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 24, fontWeight: 800, color: "#f1f5f9", margin: "0 0 4px" }}>{a.name}</h1>
+        <div style={{ fontSize: 14, color: "#94a3b8" }}>{a.group} → {a.party} · {a.date}</div>
+      </div>
+
+      {/* Download buttons */}
+      <div style={{ display: "flex", gap: 10, marginBottom: 24 }}>
+        {[
+          { icon: "📥", label: "JSON", sub: "Pour Citizen Analyzer", bg: "rgba(99,102,241,0.1)", border: "#6366f1" },
+          { icon: "📄", label: "PDF Citoyen", sub: "Résumé accessible", bg: "rgba(34,197,94,0.08)", border: "#22c55e" },
+          { icon: "📊", label: "PDF Technique", sub: "Analyse complète", bg: "rgba(245,158,11,0.08)", border: "#f59e0b" },
+        ].map((b, i) => (
+          <button key={i} style={{
+            flex: 1, padding: "12px 16px", borderRadius: 8, border: `1px solid ${b.border}33`,
+            background: b.bg, cursor: "pointer", textAlign: "left",
+          }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: "#e2e8f0" }}>{b.icon} {b.label}</div>
+            <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>{b.sub}</div>
+          </button>
+        ))}
+      </div>
+
+      {/* Panels grid — like the extension */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+        {/* Rhetoric */}
+        <div style={{ background: "#0f1a2e", border: "1px solid #1e2d3d", borderRadius: 10, padding: 20 }}>
+          <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 700, color: "#818cf8", margin: "0 0 14px", display: "flex", alignItems: "center", gap: 8 }}>
+            🎭 Mécanismes rhétoriques <span style={{ fontSize: 10, background: "rgba(239,68,68,0.15)", color: "#ef4444", padding: "2px 6px", borderRadius: 4 }}>{a.rhetoric.length} détectés</span>
+          </h3>
+          {a.rhetoric.map((r, i) => (
+            <div key={i} style={{ marginBottom: 12, paddingBottom: 12, borderBottom: i < a.rhetoric.length - 1 ? "1px solid #1e2d3d" : "none" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: "#e2e8f0" }}>{r.name}</span>
+                <span style={{ fontSize: 10, padding: "2px 6px", borderRadius: 3, background: severityColor(r.severity) + "22", color: severityColor(r.severity), fontWeight: 600 }}>
+                  {r.severity === "high" ? "Élevé" : r.severity === "medium" ? "Moyen" : "Faible"} · ×{r.count}
+                </span>
+              </div>
+              <div style={{ fontSize: 12, color: "#94a3b8", fontStyle: "italic", lineHeight: 1.4 }}>"{r.extract}"</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Regime Score */}
+        <div style={{ background: "#0f1a2e", border: "1px solid #1e2d3d", borderRadius: 10, padding: 20 }}>
+          <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 700, color: "#818cf8", margin: "0 0 14px" }}>🏛️ Score de régime</h3>
+          <div style={{ textAlign: "center", marginBottom: 16 }}>
+            <div style={{
+              display: "inline-flex", width: 80, height: 80, borderRadius: "50%",
+              background: `conic-gradient(#6366f1 ${a.regimeScore.total * 3.6}deg, #1e2d3d 0deg)`,
+              alignItems: "center", justifyContent: "center",
+            }}>
+              <div style={{ width: 60, height: 60, borderRadius: "50%", background: "#0f1a2e", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <span style={{ fontSize: 22, fontWeight: 800, color: "#f1f5f9", fontFamily: "'DM Sans', sans-serif" }}>{a.regimeScore.total}</span>
+              </div>
+            </div>
+            <div style={{ fontSize: 11, color: "#64748b", marginTop: 6 }}>Score global /100</div>
+          </div>
+          <ScoreBar label="Indicateurs démocratiques" value={a.regimeScore.democratic} color="#22c55e" />
+          <ScoreBar label="Tendances autoritaires" value={a.regimeScore.authoritarian} color="#ef4444" />
+          <ScoreBar label="Marqueurs populistes" value={a.regimeScore.populist} color="#f59e0b" />
+        </div>
+
+        {/* Impact */}
+        <div style={{ background: "#0f1a2e", border: "1px solid #1e2d3d", borderRadius: 10, padding: 20 }}>
+          <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 700, color: "#818cf8", margin: "0 0 14px" }}>👥 Impact distributionnel</h3>
+          {Object.entries(a.impact).map(([k, v]) => (
+            <div key={k} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "7px 0", borderBottom: "1px solid #1a2536" }}>
+              <span style={{ fontSize: 12, color: "#c4c9d4", textTransform: "capitalize" }}>{k.replace(/_/g, " ")}</span>
+              <span style={{ fontSize: 12, fontWeight: 600, color: impactColor(v.score), background: impactColor(v.score) + "15", padding: "2px 8px", borderRadius: 4 }}>
+                {v.score > 0 ? "+" : ""}{v.score} · {v.label}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* Clarification */}
+        <div style={{ background: "#0f1a2e", border: "1px solid #1e2d3d", borderRadius: 10, padding: 20 }}>
+          <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 700, color: "#818cf8", margin: "0 0 14px" }}>🔍 Clarification rapide</h3>
+          {a.clarification.map((c, i) => (
+            <div key={i} style={{ marginBottom: 12, paddingBottom: 12, borderBottom: i < a.clarification.length - 1 ? "1px solid #1e2d3d" : "none" }}>
+              <div style={{ fontSize: 12, color: "#e2e8f0", fontWeight: 500, marginBottom: 4 }}>"{c.claim}"</div>
+              <span style={{
+                display: "inline-block", fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 4,
+                background: verdictColor(c.verdict) + "22", color: verdictColor(c.verdict), marginBottom: 4,
+              }}>{c.verdict}</span>
+              <div style={{ fontSize: 11, color: "#94a3b8", lineHeight: 1.4 }}>{c.detail}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Method link */}
+      <div style={{ marginTop: 20, textAlign: "center" }}>
+        <button onClick={() => setPage(PAGES.METHODOLOGY)} style={{
+          background: "none", border: "none", color: "#64748b", fontSize: 12, cursor: "pointer",
+        }}>Comment cette analyse a été produite → <span style={{ color: "#818cf8" }}>Méthodologie</span></button>
+      </div>
+    </div>
+  );
+}
+
+function LearnPage({ setPage, setSelectedModule }) {
+  const cats = [
+    { key: "rhetorique", icon: "🎭", title: "Décoder la rhétorique" },
+    { key: "institutions", icon: "📚", title: "Comprendre les institutions" },
+    { key: "programmes", icon: "🗳️", title: "Lire un programme politique" },
+    { key: "decisions", icon: "⚙️", title: "Types de décisions politiques" },
+  ];
+  const diffColor = d => d === "Débutant" ? "#22c55e" : d === "Intermédiaire" ? "#f59e0b" : "#ef4444";
+  return (
+    <div style={{ maxWidth: 900, margin: "0 auto", padding: "40px 24px" }}>
+      <h1 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 28, fontWeight: 800, color: "#f1f5f9", marginBottom: 4 }}>École citoyenne</h1>
+      <p style={{ color: "#94a3b8", fontSize: 14, marginBottom: 32 }}>Comprendre le pouvoir pour ne plus le subir</p>
+      {cats.map(cat => (
+        <div key={cat.key} style={{ marginBottom: 32 }}>
+          <h2 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 18, fontWeight: 700, color: "#e2e8f0", marginBottom: 12 }}>{cat.icon} {cat.title}</h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10 }}>
+            {modules.filter(m => m.cat === cat.key).map(m => (
+              <div key={m.id} onClick={() => { setSelectedModule(m); setPage(PAGES.MODULE); }} style={{
+                background: "#0f1a2e", border: "1px solid #1e2d3d", borderRadius: 8, padding: 16, cursor: "pointer", transition: "all 0.2s",
+              }}
+                onMouseEnter={e => e.currentTarget.style.borderColor = "#6366f1"}
+                onMouseLeave={e => e.currentTarget.style.borderColor = "#1e2d3d"}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                  <div>
+                    <h4 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, color: "#e2e8f0", margin: "0 0 3px" }}>{m.title}</h4>
+                    <div style={{ fontSize: 12, color: "#94a3b8" }}>{m.subtitle}</div>
+                  </div>
+                  <span style={{ fontSize: 10, fontWeight: 600, padding: "2px 8px", borderRadius: 4, background: diffColor(m.difficulty) + "15", color: diffColor(m.difficulty) }}>{m.difficulty}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ModulePage({ mod, setPage }) {
+  return (
+    <div style={{ maxWidth: 720, margin: "0 auto", padding: "32px 24px" }}>
+      <button onClick={() => setPage(PAGES.LEARN)} style={{ background: "none", border: "none", color: "#818cf8", cursor: "pointer", fontSize: 13, marginBottom: 20, padding: 0 }}>← Retour</button>
+      <div style={{ background: "#0f1a2e", border: "1px solid #1e2d3d", borderRadius: 12, padding: 32 }}>
+        <span style={{ fontSize: 36 }}>{mod.icon}</span>
+        <h1 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 24, fontWeight: 800, color: "#f1f5f9", margin: "12px 0 4px" }}>{mod.title}</h1>
+        <p style={{ color: "#94a3b8", fontSize: 14, marginBottom: 24 }}>{mod.subtitle}</p>
+        <div style={{ color: "#c4c9d4", fontSize: 14, lineHeight: 1.8 }}>
+          <p>Ce module vous apprend à identifier et comprendre cette technique rhétorique dans le discours politique réel.</p>
+          <h3 style={{ color: "#818cf8", fontSize: 16, fontWeight: 700, marginTop: 20 }}>Définition</h3>
+          <p>Contenu du module éducatif avec des explications claires, des exemples concrets tirés de vrais discours analysés par la communauté Citizen Analyzer.</p>
+          <h3 style={{ color: "#818cf8", fontSize: 16, fontWeight: 700, marginTop: 20 }}>Exemple réel</h3>
+          <div style={{ background: "#1a2536", borderLeft: "3px solid #6366f1", padding: 16, borderRadius: "0 8px 8px 0", margin: "8px 0" }}>
+            <p style={{ fontStyle: "italic", margin: 0 }}>"Si nous n'agissons pas maintenant, c'est l'effondrement qui nous attend."</p>
+            <p style={{ fontSize: 12, color: "#64748b", margin: "8px 0 0" }}>— Extrait issu d'une analyse communautaire</p>
+          </div>
+          <h3 style={{ color: "#818cf8", fontSize: 16, fontWeight: 700, marginTop: 20 }}>Comment la repérer</h3>
+          <p>Indices concrets pour identifier cette technique dans les discours, programmes et débats.</p>
+        </div>
+        <div style={{ marginTop: 24, display: "flex", gap: 10 }}>
+          <button style={{ padding: "10px 20px", borderRadius: 6, border: "none", background: "linear-gradient(135deg, #6366f1, #8b5cf6)", color: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 13 }}>
+            ✓ Marquer comme complété
+          </button>
+          <button onClick={() => setPage(PAGES.QUIZ)} style={{ padding: "10px 20px", borderRadius: 6, border: "1px solid #2d3748", background: "transparent", color: "#c4c9d4", fontWeight: 600, cursor: "pointer", fontSize: 13 }}>
+            Tester mes connaissances →
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function QuizListPage({ setPage }) {
+  const diffColor = d => d === "Débutant" ? "#22c55e" : d === "Intermédiaire" ? "#f59e0b" : "#ef4444";
+  return (
+    <div style={{ maxWidth: 900, margin: "0 auto", padding: "40px 24px" }}>
+      <h1 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 28, fontWeight: 800, color: "#f1f5f9", marginBottom: 4 }}>Quiz</h1>
+      <p style={{ color: "#94a3b8", fontSize: 14, marginBottom: 32 }}>Testez votre lucidité politique</p>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 14 }}>
+        {quizzes.map(q => (
+          <div key={q.id} onClick={() => setPage(PAGES.QUIZ_PLAY)} style={{
+            background: "#0f1a2e", border: "1px solid #1e2d3d", borderRadius: 10, padding: 24, cursor: "pointer", transition: "all 0.2s",
+          }}
+            onMouseEnter={e => e.currentTarget.style.borderColor = "#6366f1"}
+            onMouseLeave={e => e.currentTarget.style.borderColor = "#1e2d3d"}
+          >
+            <div style={{ fontSize: 28, marginBottom: 8 }}>{q.icon}</div>
+            <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, fontWeight: 600, color: "#e2e8f0", margin: "0 0 6px" }}>{q.title}</h3>
+            <div style={{ display: "flex", gap: 8, fontSize: 11 }}>
+              <span style={{ color: "#64748b" }}>{q.questions} questions</span>
+              <span style={{ color: diffColor(q.difficulty) }}>{q.difficulty}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function QuizPlayPage({ setPage }) {
+  const [current, setCurrent] = useState(0);
+  const [selected, setSelected] = useState(null);
+  const [answered, setAnswered] = useState(false);
+  const [score, setScore] = useState(0);
+  const [finished, setFinished] = useState(false);
+  const q = quizQuestions[current];
+  const handleAnswer = (i) => {
+    if (answered) return;
+    setSelected(i);
+    setAnswered(true);
+    if (i === q.correct) setScore(s => s + 1);
+  };
+  const next = () => {
+    if (current < quizQuestions.length - 1) { setCurrent(c => c + 1); setSelected(null); setAnswered(false); }
+    else setFinished(true);
+  };
+  if (finished) return (
+    <div style={{ maxWidth: 600, margin: "0 auto", padding: "60px 24px", textAlign: "center" }}>
+      <div style={{ fontSize: 48, marginBottom: 16 }}>🎯</div>
+      <h2 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 24, fontWeight: 800, color: "#f1f5f9", marginBottom: 8 }}>Quiz terminé !</h2>
+      <p style={{ fontSize: 32, fontWeight: 800, color: "#818cf8", fontFamily: "'DM Sans', sans-serif" }}>{score}/{quizQuestions.length}</p>
+      <p style={{ color: "#94a3b8", fontSize: 14, margin: "8px 0 24px" }}>{score === quizQuestions.length ? "Parfait ! Vous avez l'œil !" : "Continuez à apprendre, vous progressez !"}</p>
+      <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+        <button onClick={() => setPage(PAGES.QUIZ)} style={{ padding: "10px 20px", borderRadius: 6, border: "1px solid #2d3748", background: "transparent", color: "#c4c9d4", cursor: "pointer", fontWeight: 600 }}>Autres quiz</button>
+        <button onClick={() => setPage(PAGES.LEARN)} style={{ padding: "10px 20px", borderRadius: 6, border: "none", background: "linear-gradient(135deg, #6366f1, #8b5cf6)", color: "#fff", cursor: "pointer", fontWeight: 600 }}>Continuer à apprendre</button>
+      </div>
+    </div>
+  );
+  return (
+    <div style={{ maxWidth: 680, margin: "0 auto", padding: "40px 24px" }}>
+      <button onClick={() => setPage(PAGES.QUIZ)} style={{ background: "none", border: "none", color: "#818cf8", cursor: "pointer", fontSize: 13, marginBottom: 20, padding: 0 }}>← Retour</button>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+        <span style={{ fontSize: 12, color: "#64748b" }}>Question {current + 1}/{quizQuestions.length}</span>
+        <span style={{ fontSize: 12, color: "#818cf8", fontWeight: 600 }}>Score : {score}</span>
+      </div>
+      <div style={{ background: "#0f1a2e", border: "1px solid #1e2d3d", borderRadius: 12, padding: 28 }}>
+        <h2 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, fontWeight: 600, color: "#f1f5f9", marginBottom: 20, lineHeight: 1.5 }}>{q.q}</h2>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {q.options.map((o, i) => (
+            <button key={i} onClick={() => handleAnswer(i)} style={{
+              padding: "12px 16px", borderRadius: 8, textAlign: "left", cursor: answered ? "default" : "pointer",
+              fontSize: 14, color: "#e2e8f0", fontFamily: "'DM Sans', sans-serif", transition: "all 0.2s",
+              border: `1px solid ${answered ? (i === q.correct ? "#22c55e" : i === selected ? "#ef4444" : "#1e2d3d") : selected === i ? "#6366f1" : "#1e2d3d"}`,
+              background: answered ? (i === q.correct ? "rgba(34,197,94,0.1)" : i === selected ? "rgba(239,68,68,0.1)" : "#0a1020") : "#0a1020",
+            }}>{o}</button>
+          ))}
+        </div>
+        {answered && (
+          <div style={{ marginTop: 16, padding: 16, background: "#1a2536", borderRadius: 8, borderLeft: "3px solid #6366f1" }}>
+            <div style={{ fontSize: 13, color: "#c4c9d4", lineHeight: 1.5 }}>{q.explanation}</div>
+          </div>
+        )}
+        {answered && (
+          <button onClick={next} style={{
+            marginTop: 16, padding: "10px 24px", borderRadius: 6, border: "none",
+            background: "linear-gradient(135deg, #6366f1, #8b5cf6)", color: "#fff",
+            fontWeight: 600, cursor: "pointer", fontSize: 13, width: "100%",
+          }}>{current < quizQuestions.length - 1 ? "Question suivante →" : "Voir le résultat"}</button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function TrendsPage() {
+  const rhetoricData = [
+    { name: "Appel à la peur", value: 34, color: "#ef4444" },
+    { name: "Cherry-picking", value: 28, color: "#f59e0b" },
+    { name: "Faux dilemme", value: 22, color: "#3b82f6" },
+    { name: "Whataboutism", value: 18, color: "#8b5cf6" },
+    { name: "Homme de paille", value: 15, color: "#22c55e" },
+    { name: "Novlangue", value: 12, color: "#06b6d4" },
+  ];
+  const maxVal = Math.max(...rhetoricData.map(r => r.value));
+  return (
+    <div style={{ maxWidth: 900, margin: "0 auto", padding: "40px 24px" }}>
+      <h1 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 28, fontWeight: 800, color: "#f1f5f9", marginBottom: 4 }}>Observatoire des tendances</h1>
+      <p style={{ color: "#94a3b8", fontSize: 14, marginBottom: 32 }}>L'état du discours politique, en temps réel</p>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+        <div style={{ background: "#0f1a2e", border: "1px solid #1e2d3d", borderRadius: 10, padding: 20 }}>
+          <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 700, color: "#818cf8", margin: "0 0 16px" }}>🎭 Rhétoriques les plus détectées</h3>
+          {rhetoricData.map((r, i) => (
+            <div key={i} style={{ marginBottom: 10 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "#c4c9d4", marginBottom: 3 }}>
+                <span>{r.name}</span><span style={{ color: r.color }}>{r.value}%</span>
+              </div>
+              <div style={{ height: 6, background: "#1e2a3a", borderRadius: 3 }}>
+                <div style={{ height: "100%", width: `${(r.value / maxVal) * 100}%`, background: r.color, borderRadius: 3, transition: "width 0.8s ease" }} />
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style={{ background: "#0f1a2e", border: "1px solid #1e2d3d", borderRadius: 10, padding: 20 }}>
+          <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 700, color: "#818cf8", margin: "0 0 16px" }}>🏛️ Scores de régime moyens</h3>
+          {[
+            { party: "Renaissance", dem: 71, auth: 53, pop: 48 },
+            { party: "RN", dem: 42, auth: 74, pop: 82 },
+            { party: "LFI", dem: 58, auth: 61, pop: 76 },
+            { party: "LR", dem: 65, auth: 58, pop: 52 },
+            { party: "PS", dem: 72, auth: 38, pop: 45 },
+          ].map((p, i) => (
+            <div key={i} style={{ marginBottom: 12, paddingBottom: 12, borderBottom: i < 4 ? "1px solid #1e2d3d" : "none" }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: "#e2e8f0", marginBottom: 6 }}>{p.party}</div>
+              <div style={{ display: "flex", gap: 6 }}>
+                <span style={{ fontSize: 10, padding: "2px 6px", borderRadius: 3, background: "rgba(34,197,94,0.12)", color: "#4ade80" }}>Dém. {p.dem}</span>
+                <span style={{ fontSize: 10, padding: "2px 6px", borderRadius: 3, background: "rgba(239,68,68,0.12)", color: "#ef4444" }}>Auth. {p.auth}</span>
+                <span style={{ fontSize: 10, padding: "2px 6px", borderRadius: 3, background: "rgba(245,158,11,0.12)", color: "#fbbf24" }}>Pop. {p.pop}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style={{ gridColumn: "span 2", background: "#0f1a2e", border: "1px solid #1e2d3d", borderRadius: 10, padding: 20 }}>
+          <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 700, color: "#818cf8", margin: "0 0 16px" }}>📈 Activité de la communauté</h3>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+            {[
+              { label: "Analyses ce mois", value: "23", trend: "+15%" },
+              { label: "Nouveaux contributeurs", value: "8", trend: "+33%" },
+              { label: "Quiz complétés", value: "142", trend: "+22%" },
+              { label: "Super JSON créés", value: "3", trend: "Nouveau" },
+            ].map((s, i) => (
+              <div key={i} style={{ textAlign: "center", padding: 12, background: "#1a2536", borderRadius: 8 }}>
+                <div style={{ fontSize: 22, fontWeight: 800, color: "#f1f5f9", fontFamily: "'DM Sans', sans-serif" }}>{s.value}</div>
+                <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>{s.label}</div>
+                <div style={{ fontSize: 10, color: "#4ade80", marginTop: 4 }}>{s.trend}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function InstitutionalPage({ title, icon, sections, setPage }) {
+  return (
+    <div style={{ maxWidth: 760, margin: "0 auto", padding: "40px 24px" }}>
+      <h1 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 28, fontWeight: 800, color: "#f1f5f9", marginBottom: 32 }}>{icon} {title}</h1>
+      {sections.map((s, i) => (
+        <div key={i} style={{ marginBottom: 24 }}>
+          <div style={{ background: "#0f1a2e", border: "1px solid #1e2d3d", borderRadius: 10, padding: 24 }}>
+            <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, fontWeight: 700, color: "#818cf8", margin: "0 0 12px" }}>{s.title}</h3>
+            <div style={{ color: "#c4c9d4", fontSize: 14, lineHeight: 1.7 }}>{s.content}</div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function App() {
+  const [page, setPage] = useState(PAGES.HOME);
+  const [selectedAnalysis, setSelectedAnalysis] = useState(null);
+  const [selectedModule, setSelectedModule] = useState(modules[0]);
+
+  const methodSections = [
+    { title: "Fondements académiques", content: "L'analyse distributionnelle s'appuie sur les méthodologies de l'OCDE et de la Banque Mondiale. Les grilles de détection rhétorique sont issues de la recherche en sciences du langage et en communication politique. Le scoring de régime utilise des indicateurs reconnus dans la littérature académique en science politique." },
+    { title: "Pipeline d'analyse", content: "Chaque contenu est analysé par un LLM (Large Language Model) à travers plusieurs modules spécialisés. Le LLM identifie les mécanismes rhétoriques, évalue les tendances de régime, mesure l'impact distributionnel et vérifie les affirmations factuelles. Plusieurs passes sont nécessaires car une seule analyse ne détecte jamais l'ensemble des éléments." },
+    { title: "Processus de consolidation", content: "Les analyses individuelles sont fusionnées en 'Super JSON' qui combinent les détections de multiples contributeurs. Les contradictions sont résolues par consensus (majorité des détections) et par review humaine. Ce processus produit des analyses plus complètes et fiables qu'aucune contribution individuelle." },
+    { title: "Neutralité politique", content: "Les mêmes grilles d'analyse sont appliquées à tous les bords politiques sans exception. Aucune pondération idéologique n'est intégrée dans les prompts ou les critères d'évaluation. La transparence totale de la méthode permet à chacun de vérifier l'absence de biais systémique." },
+  ];
+
+  const limitSections = [
+    { title: "Limites du LLM", content: "Les hallucinations restent possibles malgré les garde-fous. La sensibilité au contexte culturel et linguistique peut produire des interprétations variables. Les résultats peuvent différer entre les passes d'analyse, d'où l'importance du crowdsourcing pour consolider les détections." },
+    { title: "Limites de la détection rhétorique", content: "L'ironie, le second degré et les références culturelles implicites échappent souvent à l'analyse automatique. Le contexte non-verbal (ton, gestuelle, expressions faciales) est absent de l'analyse textuelle. Des faux positifs et faux négatifs sont inévitables." },
+    { title: "Limites du scoring", content: "Un score n'est pas un verdict politique. Les grilles sont des outils de lecture, pas des jugements absolus. Les seuils sont conventionnels et la comparabilité entre contextes très différents (pays, époques) reste limitée." },
+    { title: "Ce que l'outil n'est pas", content: "Citizen Analyzer n'est pas un juge politique, pas un substitut à l'esprit critique personnel, pas une source primaire d'information, et pas un outil infaillible. C'est un instrument d'aide à la compréhension du discours politique, à utiliser en complément de sa propre réflexion." },
+  ];
+
+  const aboutSections = [
+    { title: "La mission", content: "Citizen Analyzer existe pour rendre l'analyse politique accessible à tous. Le discours politique utilise des techniques de persuasion que la plupart des citoyens ne sont pas formés à identifier. Notre outil comble ce déficit en offrant une analyse automatisée, transparente et collaborative." },
+    { title: "Positionnement", content: "Non-partisan : nous analysons tous les bords politiques avec les mêmes grilles. Indépendant : aucun financement politique, aucune affiliation partisane. Transparent : la méthode, le code, les limites — tout est public et documenté." },
+    { title: "Modèle", content: "Projet open source et collaboratif. Pas de publicité, pas de revente de données. Le financement repose sur les contributions volontaires et le bénévolat. L'objectif est de rester un bien commun citoyen." },
+    { title: "Contribuer", content: "Utilisez l'extension pour analyser des contenus politiques et partagez vos analyses. Chaque contribution enrichit la base commune et aide d'autres citoyens à mieux comprendre le discours politique. Vous pouvez aussi contribuer au code, aux contenus éducatifs, ou aux quiz." },
+  ];
+
+  return (
+    <div style={{
+      minHeight: "100vh",
+      background: "linear-gradient(180deg, #080d19 0%, #0c1222 100%)",
+      color: "#c4c9d4",
+      fontFamily: "'DM Sans', -apple-system, sans-serif",
+    }}>
+      <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+      <Nav page={page} setPage={setPage} />
+      {page === PAGES.HOME && <HomePage setPage={setPage} setSelectedAnalysis={setSelectedAnalysis} />}
+      {page === PAGES.EXPLORER && <ExplorerPage setPage={setPage} setSelectedAnalysis={setSelectedAnalysis} />}
+      {page === PAGES.ANALYSIS && <AnalysisPage analysis={selectedAnalysis} setPage={setPage} />}
+      {page === PAGES.LEARN && <LearnPage setPage={setPage} setSelectedModule={setSelectedModule} />}
+      {page === PAGES.MODULE && <ModulePage mod={selectedModule} setPage={setPage} />}
+      {page === PAGES.QUIZ && <QuizListPage setPage={setPage} />}
+      {page === PAGES.QUIZ_PLAY && <QuizPlayPage setPage={setPage} />}
+      {page === PAGES.TRENDS && <TrendsPage />}
+      {page === PAGES.METHODOLOGY && <InstitutionalPage title="Méthodologie" icon="📐" sections={methodSections} setPage={setPage} />}
+      {page === PAGES.LIMITS && <InstitutionalPage title="Limites" icon="⚠️" sections={limitSections} setPage={setPage} />}
+      {page === PAGES.ABOUT && <InstitutionalPage title="Qui sommes-nous" icon="👥" sections={aboutSections} setPage={setPage} />}
+      {/* Footer */}
+      <footer style={{ borderTop: "1px solid #1e2d3d", padding: "24px", textAlign: "center", marginTop: 40 }}>
+        <div style={{ fontSize: 12, color: "#475569" }}>
+          Citizen Analyzer — Plateforme citoyenne d'analyse politique · Open Source · Non-partisan
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>

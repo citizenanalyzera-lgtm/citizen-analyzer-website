@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Méthodologie — Citizen Analyzer</title>
+  <meta name="description" content="Fondements académiques et pipeline d'analyse de Citizen Analyzer. Analyse distributionnelle, détection rhétorique, scoring de régime.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/shared.css">
+</head>
+<body>
+
+<nav id="nav">
+  <a href="/" class="nav-brand">
+    <div class="nav-logo">C</div>
+    <div class="nav-name">Citizen <span>Analyzer</span></div>
+  </a>
+  <div class="nav-links">
+    <a href="/#fonctionnalites">Fonctionnalités</a>
+    <a href="methodologie.html" class="active">Méthodologie</a>
+    <a href="a-propos.html">À propos</a>
+    <a href="docs.html">Documentation</a>
+    <a href="/#installer" class="nav-cta">Installer l'extension</a>
+  </div>
+</nav>
+
+<header class="page-header">
+  <div class="page-header-inner">
+    <div class="section-label">Fondements</div>
+    <h1 class="page-title">Méthodologie</h1>
+    <p class="page-sub">Chaque module d'analyse repose sur des cadres académiques reconnus, adaptés pour l'analyse textuelle automatisée.</p>
+  </div>
+</header>
+
+<main class="page-content">
+
+  <!-- 1. DIA -->
+  <article class="content-block reveal">
+    <div class="content-icon">📊</div>
+    <h2>Analyse distributionnelle (DIA)</h2>
+    <p>
+      L'analyse d'impact distributionnel est la méthode standard utilisée par l'OCDE, la Banque Mondiale,
+      le Congressional Budget Office (CBO) et la Cour des comptes pour évaluer les effets des politiques publiques
+      sur différents groupes sociaux.
+    </p>
+    <p>
+      Citizen Analyzer adapte cette méthode en version qualitative : pour chaque groupe social identifiable
+      dans le texte analysé, l'outil caractérise quatre dimensions.
+    </p>
+    <div class="content-grid-4">
+      <div class="mini-card">
+        <strong>Direction</strong>
+        <span>Positive, négative, mixte ou incertaine</span>
+      </div>
+      <div class="mini-card">
+        <strong>Intensité</strong>
+        <span>Forte, modérée ou faible</span>
+      </div>
+      <div class="mini-card">
+        <strong>Horizon</strong>
+        <span>Court terme, long terme ou les deux</span>
+      </div>
+      <div class="mini-card">
+        <strong>Mécanisme</strong>
+        <span>Explication causale en 1-2 phrases</span>
+      </div>
+    </div>
+    <p>
+      La taxonomie des groupes couvre : statut économique (salariés, retraités, demandeurs d'emploi…),
+      secteur (agriculteurs, fonctionnaires, soignants…), situation (locataires, familles nombreuses…),
+      vulnérabilité, taille d'entreprise et institutions publiques.
+    </p>
+  </article>
+
+  <!-- 2. Regime -->
+  <article class="content-block reveal">
+    <div class="content-icon">🏛️</div>
+    <h2>Détection de régime</h2>
+    <p>
+      Le module "thermomètre de régime" compare le discours analysé à 12 modèles de régime politique,
+      basés sur la littérature académique en science politique comparée.
+    </p>
+    <p>
+      Chaque modèle est caractérisé par un ensemble d'indicateurs discursifs : concentration du pouvoir,
+      rhétorique identitaire, rejet des contre-pouvoirs, culte du leader, etc. Le score reflète le nombre
+      d'indicateurs activés dans le texte, rapporté au maximum possible.
+    </p>
+    <p>
+      Les régimes démocratiques sains (social-démocratie, démocratie libérale, démocratie fragilisée) sont
+      distingués des modèles d'alerte. Un discours qui n'active aucun signal d'alerte reçoit un message
+      positif sur la santé démocratique.
+    </p>
+  </article>
+
+  <!-- 3. Rhetoric -->
+  <article class="content-block reveal">
+    <div class="content-icon">🎭</div>
+    <h2>Grille rhétorique</h2>
+    <p>
+      La détection de mécanismes rhétoriques s'appuie sur les sciences du langage et l'analyse de discours.
+      L'outil identifie les techniques de persuasion courantes dans le discours politique :
+    </p>
+    <ul class="content-list">
+      <li><strong>Homme de paille</strong> — déformer la position adverse pour la réfuter plus facilement</li>
+      <li><strong>Faux dilemme</strong> — réduire les options à deux choix opposés</li>
+      <li><strong>Appel à la peur</strong> — mobiliser l'émotion plutôt que l'argument</li>
+      <li><strong>Cherry-picking</strong> — sélectionner les données qui arrangent</li>
+      <li><strong>Novlangue</strong> — reformuler pour masquer la réalité</li>
+      <li><strong>Whataboutism</strong> — détourner la critique vers l'adversaire</li>
+    </ul>
+    <p>
+      Chaque mécanisme détecté est accompagné de l'extrait source, d'une explication du fonctionnement
+      et de l'effet produit sur le lecteur.
+    </p>
+  </article>
+
+  <!-- 4. MARPOR -->
+  <article class="content-block reveal">
+    <div class="content-icon">📋</div>
+    <h2>Framework MARPOR</h2>
+    <p>
+      En mode programme, l'analyse utilise les 56 catégories du <em>Manifesto Research on Political Representation</em> (MARPOR),
+      le cadre de référence international pour l'analyse des programmes politiques depuis 1979.
+    </p>
+    <p>
+      Les catégories sont organisées en 7 domaines : relations extérieures, liberté et démocratie,
+      système politique, économie, protection sociale, groupes sociaux et tissu social.
+      L'outil mesure la couverture thématique du programme et identifie les angles morts.
+    </p>
+  </article>
+
+  <!-- 5. Pipeline -->
+  <article class="content-block reveal">
+    <div class="content-icon">⚙️</div>
+    <h2>Pipeline d'analyse</h2>
+    <p>L'analyse se déroule en plusieurs passes successives :</p>
+    <div class="pipeline">
+      <div class="pipeline-step">
+        <div class="pipeline-num">1</div>
+        <div>
+          <strong>Détection structurelle</strong>
+          <p>Identification des thèmes, acteurs, mécanismes rhétoriques, groupes affectés et données factuelles.</p>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-num">2</div>
+        <div>
+          <strong>Analyse approfondie</strong>
+          <p>Développement complet : scoring, impact distributionnel, analyse de régime, mise en contexte.</p>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-num">3</div>
+        <div>
+          <strong>Vérification de fiabilité</strong>
+          <p>Confrontation des affirmations aux données, identification des biais et des sources manquantes.</p>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-num">4</div>
+        <div>
+          <strong>Enrichissement</strong>
+          <p>Croisement avec les données externes : votes parlementaires, données publiques, contexte historique.</p>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <!-- 6. Neutrality -->
+  <article class="content-block reveal">
+    <div class="content-icon">⚖️</div>
+    <h2>Neutralité politique</h2>
+    <p>
+      Les mêmes grilles d'analyse sont appliquées à tous les bords politiques, sans exception.
+      Les prompts envoyés au modèle de langage ne contiennent aucune pondération idéologique.
+      Le scoring est factuel : il mesure la présence d'indicateurs objectifs, pas une orientation politique.
+    </p>
+    <p>
+      Un score élevé de rhétorique ne signifie pas "mauvais" — il signifie que le texte utilise
+      des techniques de persuasion identifiables. L'interprétation reste toujours celle du citoyen.
+    </p>
+  </article>
+
+</main>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="/" class="nav-brand">
+        <div class="nav-logo">C</div>
+        <div class="nav-name">Citizen <span>Analyzer</span></div>
+      </a>
+      <p>Outil citoyen d'analyse du discours politique. Open source, non-partisan, gratuit.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Outil</h4>
+      <a href="/#fonctionnalites">Fonctionnalités</a>
+      <a href="docs.html">Documentation</a>
+    </div>
+    <div class="footer-col">
+      <h4>Projet</h4>
+      <a href="methodologie.html">Méthodologie</a>
+      <a href="limites.html">Limites</a>
+      <a href="a-propos.html">À propos</a>
+      <a href="mailto:contact@citizen-analyzer.org">Contact</a>
+    </div>
+    <div class="footer-col">
+      <h4>Communauté</h4>
+      <a href="https://github.com/citizenanalyzera-lgtm" target="_blank">GitHub</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Citizen Analyzer — Projet associatif</span>
+    <span>Code source sous <a href="#">licence ouverte</a></span>
+  </div>
+</footer>
+
+<script>
+  window.addEventListener('scroll', function() {
+    document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 40);
+  });
+  var reveals = document.querySelectorAll('.reveal');
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) entry.target.classList.add('visible');
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+  reveals.forEach(function(el) { observer.observe(el); });
+</script>
+
+</body>
+</html>

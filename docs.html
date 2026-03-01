@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Documentation — Citizen Analyzer</title>
+  <meta name="description" content="Guide d'installation et d'utilisation de l'extension Citizen Analyzer.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/shared.css">
+  <style>
+    .code-block {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 16px 20px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--accent-emerald);
+      margin: 16px 0;
+      overflow-x: auto;
+    }
+    .doc-nav {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 48px;
+    }
+    .doc-nav h3 {
+      font-size: 14px; font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--text-primary);
+    }
+    .doc-nav a {
+      display: block;
+      font-size: 14px;
+      padding: 6px 0;
+      color: var(--text-secondary);
+    }
+    .doc-nav a:hover { color: var(--accent-indigo); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<nav id="nav">
+  <a href="/" class="nav-brand"><div class="nav-logo">C</div><div class="nav-name">Citizen <span>Analyzer</span></div></a>
+  <div class="nav-links">
+    <a href="/#fonctionnalites">Fonctionnalités</a>
+    <a href="methodologie.html">Méthodologie</a>
+    <a href="a-propos.html">À propos</a>
+    <a href="docs.html" class="active">Documentation</a>
+    <a href="/#installer" class="nav-cta">Installer l'extension</a>
+  </div>
+</nav>
+
+<header class="page-header">
+  <div class="page-header-inner">
+    <div class="section-label">Guide</div>
+    <h1 class="page-title">Documentation</h1>
+    <p class="page-sub">Tout ce qu'il faut pour installer, utiliser et comprendre Citizen Analyzer.</p>
+  </div>
+</header>
+
+<main class="page-content">
+
+  <div class="doc-nav reveal">
+    <h3>Sommaire</h3>
+    <a href="#installation">1. Installation</a>
+    <a href="#premiere-analyse">2. Première analyse</a>
+    <a href="#lire-resultats">3. Lire les résultats</a>
+    <a href="#mode-programme">4. Mode programme politique</a>
+    <a href="#import">5. Importer un document</a>
+    <a href="#faq">6. Questions fréquentes</a>
+  </div>
+
+  <!-- 1. Installation -->
+  <article class="content-block reveal" id="installation">
+    <div class="content-icon">📥</div>
+    <h2>1. Installation</h2>
+
+    <p><strong>Chrome / Edge / Brave / Opera</strong></p>
+    <ul class="content-list">
+      <li>Rendez-vous sur le Chrome Web Store (lien bientôt disponible)</li>
+      <li>Cliquez sur "Ajouter à Chrome"</li>
+      <li>L'icône Citizen Analyzer apparaît dans votre barre d'extensions</li>
+    </ul>
+
+    <p><strong>Firefox</strong></p>
+    <ul class="content-list">
+      <li>Rendez-vous sur Firefox Add-ons (lien bientôt disponible)</li>
+      <li>Cliquez sur "Ajouter à Firefox"</li>
+      <li>Autorisez l'extension quand Firefox vous le demande</li>
+    </ul>
+
+    <p><strong>Installation manuelle (développeurs)</strong></p>
+    <ul class="content-list">
+      <li>Téléchargez le code source depuis <a href="https://github.com/citizenanalyzera-lgtm" target="_blank">GitHub</a></li>
+      <li>Dans Chrome, allez dans <code>chrome://extensions/</code></li>
+      <li>Activez le "Mode développeur" en haut à droite</li>
+      <li>Cliquez "Charger l'extension non empaquetée" et sélectionnez le dossier <code>extension/</code></li>
+    </ul>
+  </article>
+
+  <!-- 2. Première analyse -->
+  <article class="content-block reveal" id="premiere-analyse">
+    <div class="content-icon">🚀</div>
+    <h2>2. Première analyse</h2>
+    <ul class="content-list">
+      <li><strong>Ouvrez un article</strong> — N'importe quel article de presse, discours retranscrit, programme politique ou texte de loi.</li>
+      <li><strong>Cliquez sur l'icône</strong> — L'extension s'ouvre dans un panneau latéral à droite de la page.</li>
+      <li><strong>Lancez l'analyse</strong> — Cliquez sur "Analyser cette page". L'analyse prend environ 2 à 5 minutes selon la longueur du texte.</li>
+      <li><strong>Consultez les résultats</strong> — Le panneau affiche un résumé rapide (Niveau 1), puis vous pouvez approfondir chaque dimension.</li>
+    </ul>
+  </article>
+
+  <!-- 3. Lire les résultats -->
+  <article class="content-block reveal" id="lire-resultats">
+    <div class="content-icon">📖</div>
+    <h2>3. Lire les résultats</h2>
+    <p>L'analyse est organisée en niveaux progressifs de profondeur :</p>
+
+    <div class="pipeline">
+      <div class="pipeline-step">
+        <div class="pipeline-num">N1</div>
+        <div>
+          <strong>Résumé citoyen</strong>
+          <p>Score global, mécanismes rhétoriques principaux, groupes affectés, indicateur de régime. Accessible à tous en un coup d'œil.</p>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-num">N2</div>
+        <div>
+          <strong>Analyse détaillée</strong>
+          <p>Tiroirs thématiques : rhétorique complète, analyse de régime, impact distributionnel, vérification factuelle.</p>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-num">N3</div>
+        <div>
+          <strong>Fiabilité</strong>
+          <p>Évaluation de la fiabilité de l'analyse elle-même : sources vérifiées, limites identifiées, niveau de confiance.</p>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-num">N4</div>
+        <div>
+          <strong>Exploration</strong>
+          <p>Posez vos propres questions sur le texte analysé. L'IA répond en s'appuyant sur l'analyse déjà effectuée.</p>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-num">N5</div>
+        <div>
+          <strong>Et moi dans tout ça ?</strong>
+          <p>Impact personnalisé selon votre profil socio-économique. Confidentiel — aucune donnée n'est envoyée à un serveur.</p>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <!-- 4. Mode programme -->
+  <article class="content-block reveal" id="mode-programme">
+    <div class="content-icon">📋</div>
+    <h2>4. Mode programme politique</h2>
+    <p>
+      Citizen Analyzer dispose d'un mode spécifique pour les programmes politiques, utilisant le framework
+      MARPOR (56 catégories thématiques). Ce mode ajoute des analyses spécifiques :
+    </p>
+    <ul class="content-list">
+      <li><strong>Identité programmatique</strong> — Positionnement sur les 7 domaines MARPOR</li>
+      <li><strong>Couverture thématique</strong> — Quels sujets sont traités, quels sont les angles morts</li>
+      <li><strong>Cohérence budgétaire</strong> — Les mesures annoncées sont-elles financièrement cohérentes</li>
+      <li><strong>Crédibilité</strong> — Les promesses sont-elles réalistes au vu du contexte</li>
+    </ul>
+    <p>
+      Le mode programme est accessible via le sélecteur en haut du module Import, ou automatiquement
+      lorsque l'extension détecte un programme politique.
+    </p>
+  </article>
+
+  <!-- 5. Import -->
+  <article class="content-block reveal" id="import">
+    <div class="content-icon">📄</div>
+    <h2>5. Importer un document</h2>
+    <p>
+      Vous pouvez analyser des documents qui ne sont pas sur une page web :
+    </p>
+    <ul class="content-list">
+      <li><strong>PDF</strong> — Glissez un fichier PDF dans la zone d'import. L'extension extrait le texte automatiquement.</li>
+      <li><strong>Texte libre</strong> — Collez directement un texte (minimum 2 000 caractères) dans la zone de saisie.</li>
+    </ul>
+    <p>
+      Après l'import, choisissez entre "Analyser comme discours" ou "Analyser comme programme"
+      pour lancer l'analyse avec le mode approprié.
+    </p>
+  </article>
+
+  <!-- 6. FAQ -->
+  <article class="content-block reveal" id="faq">
+    <div class="content-icon">❓</div>
+    <h2>6. Questions fréquentes</h2>
+
+    <ul class="content-list">
+      <li>
+        <strong>Combien de temps dure une analyse ?</strong>
+        Environ 2 à 5 minutes, selon la longueur du texte et la charge du serveur.
+      </li>
+      <li>
+        <strong>L'extension fonctionne-t-elle en local ?</strong>
+        Non, l'analyse nécessite un appel au serveur backend qui utilise un modèle de langage.
+      </li>
+      <li>
+        <strong>Mes données sont-elles collectées ?</strong>
+        Non. Le texte est envoyé au serveur uniquement pour l'analyse, puis supprimé. Aucune donnée personnelle n'est stockée.
+      </li>
+      <li>
+        <strong>L'outil est-il neutre politiquement ?</strong>
+        Oui. Les mêmes grilles d'analyse sont appliquées à tous les bords politiques. Consultez notre page <a href="methodologie.html">Méthodologie</a> pour plus de détails.
+      </li>
+      <li>
+        <strong>Quelles langues sont supportées ?</strong>
+        L'interface est disponible en 6 langues : français, anglais, allemand, espagnol, italien et portugais. L'analyse fonctionne sur des textes dans ces mêmes langues.
+      </li>
+      <li>
+        <strong>Je trouve un bug, que faire ?</strong>
+        Envoyez-nous un message à <a href="mailto:contact@citizen-analyzer.org">contact@citizen-analyzer.org</a> ou ouvrez une issue sur <a href="https://github.com/citizenanalyzera-lgtm" target="_blank">GitHub</a>.
+      </li>
+    </ul>
+  </article>
+
+</main>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand"><a href="/" class="nav-brand"><div class="nav-logo">C</div><div class="nav-name">Citizen <span>Analyzer</span></div></a><p>Outil citoyen d'analyse du discours politique. Open source, non-partisan, gratuit.</p></div>
+    <div class="footer-col"><h4>Outil</h4><a href="/#fonctionnalites">Fonctionnalités</a><a href="docs.html">Documentation</a></div>
+    <div class="footer-col"><h4>Projet</h4><a href="methodologie.html">Méthodologie</a><a href="limites.html">Limites</a><a href="a-propos.html">À propos</a><a href="mailto:contact@citizen-analyzer.org">Contact</a></div>
+    <div class="footer-col"><h4>Communauté</h4><a href="https://github.com/citizenanalyzera-lgtm" target="_blank">GitHub</a></div>
+  </div>
+  <div class="footer-bottom"><span>© 2026 Citizen Analyzer — Projet associatif</span><span>Code source sous <a href="#">licence ouverte</a></span></div>
+</footer>
+
+<script>
+  window.addEventListener('scroll', function() { document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 40); });
+  var reveals = document.querySelectorAll('.reveal');
+  var observer = new IntersectionObserver(function(entries) { entries.forEach(function(entry) { if (entry.isIntersecting) entry.target.classList.add('visible'); }); }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+  reveals.forEach(function(el) { observer.observe(el); });
+</script>
+</body>
+</html>
